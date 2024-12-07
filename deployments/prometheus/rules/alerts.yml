@@ -1,0 +1,38 @@
+groups:
+  - name: payment_service_alerts
+    rules:
+      - alert: HighErrorRate
+        expr: rate(errors_total[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: High error rate in payment service
+          description: Error rate is above 10% for the last 5 minutes
+
+      - alert: HighPaymentLatency
+        expr: histogram_quantile(0.95, rate(payment_duration_seconds_bucket[5m])) > 2
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: High payment processing latency
+          description: 95th percentile of payment processing time is above 2 seconds
+
+      - alert: HighDatabaseLatency
+        expr: histogram_quantile(0.95, rate(database_query_duration_seconds_bucket[5m])) > 1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: High database query latency
+          description: 95th percentile of database query time is above 1 second
+
+      - alert: TooManyConnections
+        expr: active_connections > 1000
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: Too many active connections
+          description: Number of active connections is above 1000

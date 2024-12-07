@@ -1,0 +1,112 @@
+syntax = "proto3";
+
+package payment.v1;
+
+option go_package = "go_payment/api/proto/payment/v1;paymentv1";
+
+import "google/protobuf/timestamp.proto";
+
+// PaymentService предоставляет методы для обработки платежей
+service PaymentService {
+  // CreatePayment создает новый платеж
+  rpc CreatePayment(CreatePaymentRequest) returns (CreatePaymentResponse) {}
+  
+  // GetPayment получает информацию о платеже
+  rpc GetPayment(GetPaymentRequest) returns (GetPaymentResponse) {}
+  
+  // RefundPayment выполняет возврат платежа
+  rpc RefundPayment(RefundPaymentRequest) returns (RefundPaymentResponse) {}
+  
+  // ListPayments получает список платежей с фильтрацией
+  rpc ListPayments(ListPaymentsRequest) returns (ListPaymentsResponse) {}
+}
+
+// Статус платежа
+enum PaymentStatus {
+  PAYMENT_STATUS_UNSPECIFIED = 0;
+  PAYMENT_STATUS_PENDING = 1;
+  PAYMENT_STATUS_SUCCESS = 2;
+  PAYMENT_STATUS_FAILED = 3;
+  PAYMENT_STATUS_CANCELLED = 4;
+}
+
+// Платежный провайдер
+enum PaymentProvider {
+  PAYMENT_PROVIDER_UNSPECIFIED = 0;
+  PAYMENT_PROVIDER_STRIPE = 1;
+  PAYMENT_PROVIDER_PAYPAL = 2;
+}
+
+// Запрос на создание платежа
+message CreatePaymentRequest {
+  string order_id = 1;
+  double amount = 2;
+  string currency = 3;
+  PaymentProvider provider = 4;
+  string customer_id = 5;
+  string customer_email = 6;
+  string description = 7;
+  map<string, string> metadata = 8;
+}
+
+// Ответ на создание платежа
+message CreatePaymentResponse {
+  Payment payment = 1;
+}
+
+// Запрос на получение платежа
+message GetPaymentRequest {
+  string order_id = 1;
+}
+
+// Ответ с информацией о платеже
+message GetPaymentResponse {
+  Payment payment = 1;
+}
+
+// Запрос на возврат платежа
+message RefundPaymentRequest {
+  string order_id = 1;
+  double amount = 2;
+  string reason = 3;
+}
+
+// Ответ на возврат платежа
+message RefundPaymentResponse {
+  string refund_id = 1;
+  PaymentStatus status = 2;
+  google.protobuf.Timestamp refund_date = 3;
+}
+
+// Запрос на получение списка платежей
+message ListPaymentsRequest {
+  int32 page_size = 1;
+  string page_token = 2;
+  PaymentStatus status = 3;
+  PaymentProvider provider = 4;
+  google.protobuf.Timestamp start_date = 5;
+  google.protobuf.Timestamp end_date = 6;
+}
+
+// Ответ со списком платежей
+message ListPaymentsResponse {
+  repeated Payment payments = 1;
+  string next_page_token = 2;
+  int32 total_count = 3;
+}
+
+// Модель платежа
+message Payment {
+  string order_id = 1;
+  double amount = 2;
+  string currency = 3;
+  PaymentStatus status = 4;
+  PaymentProvider provider = 5;
+  string provider_txn_id = 6;
+  string customer_id = 7;
+  string customer_email = 8;
+  string description = 9;
+  string error_message = 10;
+  map<string, string> metadata = 11;
+  google.protobuf.Timestamp payment_date = 12;
+}

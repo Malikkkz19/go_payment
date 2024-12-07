@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: payment-service-config
+  namespace: payment-system
+data:
+  postgres_host: postgres-service
+  mongodb_uri: mongodb://mongodb-service:27017
+  rabbitmq_host: rabbitmq-service
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: payment-service-secrets
+  namespace: payment-system
+type: Opaque
+data:
+  postgres_user: cG9zdGdyZXM=  # postgres
+  postgres_password: cG9zdGdyZXM=  # postgres
+  stripe_secret_key: your-base64-encoded-stripe-key
+  paypal_client_id: your-base64-encoded-paypal-client-id
+  paypal_secret_key: your-base64-encoded-paypal-secret-key
